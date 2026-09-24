@@ -1,37 +1,48 @@
--- DML - Inserção de dados
+-- ============================================================
+-- ARQUIVO: dml_tabelas_fk_simples.sql
+-- SCRIPT DML: Povoamento das Tabelas Base e Com FK Simples
+-- Sistema: Infratec - Segurança no Trabalho (PostgreSQL/Supabase)
+-- ============================================================
+-- 1. TABELAS DE DOMÍNIO BASE
 
--- Usuários
-INSERT INTO usuarios (nome, login, senha, perfil)
+-- Inserção na tabela: usuario
+INSERT INTO usuario (id_usuario, email, senha)
 VALUES
-('Administrador', 'admin', '123456', 'Administrador'),
-('Maria Souza', 'maria', 'maria123', 'Técnico');
+(1, 'admin@infratec.com', '123456'),
+(2, 'maria@infratec.com', 'maria123')
+ON CONFLICT (id_usuario) DO NOTHING;
 
--- Funcionários
-INSERT INTO funcionarios (nome, cpf, cargo, setor, telefone)
+-- Inserção na tabela: epi
+INSERT INTO epi (id_epi, epi_nome)
 VALUES
-('João Silva', '123.456.789-00', 'Operador', 'Produção', '(44)99999-1111'),
-('Ana Costa', '987.654.321-00', 'Soldadora', 'Manutenção', '(44)99999-2222');
+(1, 'Capacete de Segurança com Jugular'),
+(2, 'Luva de Raspa para Proteção')
+ON CONFLICT (id_epi) DO NOTHING;
 
--- EPIs
-INSERT INTO epis (nome, tipo, ca, quantidade, validade)
+-- Inserção na tabela: tipo_inspecao
+INSERT INTO tipo_inspecao (id_tipo_inspecao, descricao)
 VALUES
-('Capacete', 'Proteção da Cabeça', 'CA12345', 20, '2028-12-31'),
-('Luva de Raspa', 'Proteção das Mãos', 'CA54321', 50, '2027-08-15');
+(1, 'Inspeção de Rotina de EPI'),
+(2, 'Inspeção Especial de Equipamentos')
+ON CONFLICT (id_tipo_inspecao) DO NOTHING;
 
--- Treinamentos
-INSERT INTO treinamentos (id_funcionario, nome_treinamento, data_treinamento, validade)
-VALUES
-(1, 'Uso correto de EPIs', '2026-08-01', '2027-08-01'),
-(2, 'Segurança no Trabalho', '2026-08-02', '2027-08-02');
+-- 2. TABELAS DEPENDENTES (FK SIMPLES)
 
--- Inspeções
-INSERT INTO inspecoes (id_epi, id_funcionario, data_inspecao, resultado, observacao)
+-- Inserção na tabela: funcionario
+INSERT INTO funcionario (matricula, nome_funcionario, setor, cargo, id_usuario)
 VALUES
-(1, 1, '2026-08-05', 'Aprovado', 'Capacete em boas condições'),
-(2, 2, '2026-08-05', 'Reprovado', 'Luva rasgada');
+(1001, 'João Silva', 'Produção', 'Operador', 1),
+(1002, 'Ana Costa', 'Manutenção', 'Soldadora', 2)
+ON CONFLICT (matricula) DO NOTHING;
 
--- Ocorrências
-INSERT INTO ocorrencias (id_inspecao, descricao, data_ocorrencia, status)
+-- Inserção na tabela: inspecao
+INSERT INTO inspecao (id_tipo_inspecao, matricula_responsavel, data_inspecao, resultado_inspecao)
 VALUES
-(1, 'Inspeção realizada sem irregularidades', '2026-08-05', 'Concluída'),
-(2, 'EPI substituído devido a danos', '2026-08-05', 'Resolvida');
+(1, 1001, '2026-08-05 10:00:00', 'Aprovado - Equipamento em boas condições'),
+(2, 1002, '2026-08-05 14:30:00', 'Reprovado - Equipamento danificado');
+
+-- Inserção na tabela: ocorrencia
+INSERT INTO ocorrencia (matricula, id_inspecao, tipo_ocorrencias, gravidade, data_ocorrencia)
+VALUES
+(1001, 1, 'Inspeção Periódica', 'Leve', '2026-08-05'),
+(1002, 2, 'Dano em Equipamento', 'Média', '2026-08-05');
